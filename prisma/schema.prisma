@@ -43,13 +43,18 @@ model Session {
 }
 
 model User {
-    id            String    @id @default(cuid())
+    id            String       @id @default(cuid())
     name          String?
-    email         String?   @unique
+    email         String?      @unique
     emailVerified DateTime?
+    isSystemAdmin Boolean      @default(false)
     image         String?
     accounts      Account[]
     sessions      Session[]
+    submissions   Submission[]
+    createdAt     DateTime     @default(now())
+    updatedAt     DateTime     @updatedAt
+    watchlists    Watchlist[]
 }
 
 model VerificationToken {
@@ -60,4 +65,123 @@ model VerificationToken {
     @@unique([identifier, token])
 }
 
+model Course {
+    id               String      @id @default(cuid())
+    title            String
+    description      String
+    priceInCents     Int
+    courseLength     Int
+    courseDifficulty String
+    thumbnail        String
+    tags             String[]
+    starterCode      String
+    createdAt        DateTime    @default(now())
+    updatedAt        DateTime    @updatedAt
+    trailer          Trailer?
+    sections         Section[]
+    challenges       Challenge[]
+    quizzes          Quiz[]
+    watchlists       Watchlist[]
+}
 
+model Trailer {
+    id          String   @id @default(cuid())
+    title       String
+    description String
+    videoUrl    String
+    thumbnail   String
+    createdAt   DateTime @default(now())
+    updatedAt   DateTime @updatedAt
+    course      Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+    courseId    String   @unique
+}
+
+model Section {
+    id             String    @id @default(cuid())
+    title          String
+    sequenceNumber Int
+    createdAt      DateTime  @default(now())
+    updatedAt      DateTime  @updatedAt
+    course         Course    @relation(fields: [courseId], references: [id], onDelete: Cascade)
+    courseId       String
+    chapters       Chapter[]
+}
+
+model Chapter {
+    id             String   @id @default(cuid())
+    title          String
+    description    String
+    videoUrl       String
+    thumbnail      String
+    sequenceNumber Int
+    videoLength    Int
+    createdAt      DateTime @default(now())
+    updatedAt      DateTime @updatedAt
+    section        Section  @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+    sectionId      String
+}
+
+model Quiz {
+    id          String     @id @default(cuid())
+    title       String
+    description String
+    createdAt   DateTime   @default(now())
+    updatedAt   DateTime   @updatedAt
+    questions   Question[]
+    course      Course     @relation(fields: [courseId], references: [id], onDelete: Cascade)
+    courseId    String
+}
+
+model Question {
+    id        String   @id @default(cuid())
+    question  String
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+    quiz      Quiz     @relation(fields: [quizId], references: [id], onDelete: Cascade)
+    quizId    String
+    options   Option[]
+}
+
+model Option {
+    id         String   @id @default(cuid())
+    option     String
+    isCorrect  Boolean
+    createdAt  DateTime @default(now())
+    updatedAt  DateTime @updatedAt
+    question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+    questionId String
+}
+
+model Challenge {
+    id          String       @id @default(cuid())
+    title       String
+    description String
+    createdAt   DateTime     @default(now())
+    updatedAt   DateTime     @updatedAt
+    sourceCode  String
+    submission  Submission[]
+    course      Course       @relation(fields: [courseId], references: [id], onDelete: Cascade)
+    courseId    String
+}
+
+model Submission {
+    id          String    @id @default(cuid())
+    sourceCode  String
+    createdAt   DateTime  @default(now())
+    updatedAt   DateTime  @updatedAt
+    adminRating Int       @default(0)
+    challenge   Challenge @relation(fields: [challengeId], references: [id], onDelete: Cascade)
+    challengeId String
+    user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+    userId      String
+}
+
+model Watchlist {
+    id        String   @id @default(cuid())
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+    title     String
+    user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+    userId    String
+    course    Course[]
+}
