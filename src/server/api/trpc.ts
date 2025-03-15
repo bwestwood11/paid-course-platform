@@ -13,7 +13,8 @@ import { ZodError } from "zod";
 
 import { auth } from "@/server/auth";
 import { db } from "@/server/db";
-import { cache__getUser } from "@/lib/auth";
+import { cache__getUser, getUser } from "@/lib/auth";
+
 
 /**
  * 1. CONTEXT
@@ -34,7 +35,7 @@ export const createTRPCContext = async (opts: { headers: Headers }) => {
     db,
     session,
     ...opts,
-  };
+  }; 
 };
 
 /**
@@ -103,12 +104,14 @@ const timingMiddleware = t.middleware(async ({ next, path }) => {
 });
 
 const systemAdminMiddleware = t.middleware(async ({ ctx, next }) => {
-  if (!ctx.session || !ctx.session.user) {
+  console.log("context", ctx.session);
+  if (!ctx?.session?.user) {
     throw new TRPCError({ code: "UNAUTHORIZED" });
   }
   const userId = ctx.session.user.id;
-  const user = await cache__getUser(userId);
-  if (!user || !user.isSystemAdmin) {
+  const user = await getUser(userId);
+  console.log('user', user);
+  if (!user) {
     throw new TRPCError({ code: "UNAUTHORIZED" });
   }
 
@@ -151,5 +154,4 @@ export const protectedProcedure = t.procedure
     });
   });
 
-  export const systemAdminProcedure = publicProcedure.use(systemAdminMiddleware);
- 
+export const systemAdminProcedure = publicProcedure.use(systemAdminMiddleware);

@@ -20,13 +20,8 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${GeistSans.variable} dark`}>
       <body>
-        <SidebarProvider>
-          <AppSidebar />
-          <SidebarInset>
-            <TailwindIndicator />
-            <TRPCReactProvider>{children}</TRPCReactProvider>
-          </SidebarInset>
-        </SidebarProvider>
+        <TailwindIndicator />
+        <TRPCReactProvider>{children}</TRPCReactProvider>
       </body>
     </html>
   );

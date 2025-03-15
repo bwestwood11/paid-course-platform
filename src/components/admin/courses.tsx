@@ -1,0 +1,150 @@
+"use client";
+
+import Link from "next/link";
+import React from "react";
+import { Button } from "../ui/button";
+import { Plus } from "lucide-react";
+import Image from "next/image";
+import { format } from "@/lib/utils";
+import { Badge } from "../ui/badge";
+import { api } from "@/trpc/react";
+
+const courses = [
+  {
+    id: "1",
+    title: "Introduction to Web Development",
+    image: "/placeholder.svg?height=200&width=300",
+    difficulty: "Beginner",
+    createdAt: new Date("2023-01-15"),
+  },
+  {
+    id: "2",
+    title: "Advanced React Patterns",
+    image: "/placeholder.svg?height=200&width=300",
+    difficulty: "Advanced",
+    createdAt: new Date("2023-03-22"),
+  },
+  {
+    id: "3",
+    title: "CSS Mastery",
+    image: "/placeholder.svg?height=200&width=300",
+    difficulty: "Intermediate",
+    createdAt: new Date("2023-02-10"),
+  },
+  {
+    id: "4",
+    title: "JavaScript Fundamentals",
+    image: "/placeholder.svg?height=200&width=300",
+    difficulty: "Beginner",
+    createdAt: new Date("2023-04-05"),
+  },
+  {
+    id: "5",
+    title: "Building APIs with Node.js",
+    image: "/placeholder.svg?height=200&width=300",
+    difficulty: "Intermediate",
+    createdAt: new Date("2023-05-18"),
+  },
+  {
+    id: "6",
+    title: "TypeScript Deep Dive",
+    image: "/placeholder.svg?height=200&width=300",
+    difficulty: "Advanced",
+    createdAt: new Date("2023-06-30"),
+  },
+];
+
+// Helper function to get badge color based on difficulty
+const getDifficultyColor = (difficulty: string) => {
+  switch (difficulty.toLowerCase()) {
+    case "beginner":
+      return "bg-green-100 text-green-800 hover:bg-green-100/80";
+    case "intermediate":
+      return "bg-blue-100 text-blue-800 hover:bg-blue-100/80";
+    case "advanced":
+      return "bg-red-100 text-red-800 hover:bg-red-100/80";
+    default:
+      return "bg-gray-100 text-gray-800 hover:bg-gray-100/80";
+  }
+};
+
+const Courses = () => {
+  const { data: courses, fetchNextPage } =
+    api.courses.getAllAdminCourses.useInfiniteQuery(
+      { limit: 10 },
+      {
+        getNextPageParam: (lastPage) => lastPage.nextCursor,
+        select: (data) => {
+          return {
+            ...data,
+            hasNextPage: data.pages[0]?.hasNextPage,
+          };
+        },
+      },
+    );
+  if (!courses) return null;
+  return (
+    <div className="p-8">
+      <div className="mb-8 flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold">Courses</h1>
+          <p className="text-muted-foreground">Manage your course catalog</p>
+        </div>
+        <Link href="/admin/courses/new">
+          <Button>
+            <Plus className="mr-2 h-4 w-4" />
+            Upload Course
+          </Button>
+        </Link>
+      </div>
+
+      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        {courses.pages
+          .flatMap((page) => page.courses)
+          .map((course) => (
+            <div
+              key={course.id}
+              className="group overflow-hidden rounded-lg border bg-card shadow-sm transition-all hover:shadow-md"
+            >
+              <div className="relative aspect-video overflow-hidden">
+                <img
+                  src={course.thumbnail || "/placeholder.svg"}
+                  alt={course.title}
+                  // fill
+                  className="object-cover transition-transform group-hover:scale-105"
+                />
+              </div>
+              <div className="p-4">
+                <div className="mb-2 flex items-center justify-between">
+                  <Badge
+                    className={getDifficultyColor(course.courseDifficulty)}
+                    variant="outline"
+                  >
+                    {course.courseDifficulty}
+                  </Badge>
+                  <span className="text-xs text-muted-foreground">
+                    {format(course.createdAt)}
+                  </span>
+                </div>
+                <h3 className="line-clamp-2 text-lg font-semibold">
+                  {course.title}
+                </h3>
+                <div className="mt-4 flex justify-end">
+                  <Link href={`/admin/courses/${course.id}`}>
+                    <Button variant="ghost" size="sm">
+                      Edit
+                    </Button>
+                  </Link>
+                </div>
+              </div>
+            </div>
+          ))}
+        {courses.hasNextPage && (
+          <Button onClick={() => fetchNextPage()}>Load More</Button>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default Courses;
