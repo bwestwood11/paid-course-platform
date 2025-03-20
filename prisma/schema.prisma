@@ -69,10 +69,8 @@ model Course {
     id               String      @id @default(cuid())
     title            String
     description      String
-    priceInCents     Int
     courseLength     Int
     courseDifficulty String
-    thumbnail        String
     tags             String[]
     starterCode      String
     createdAt        DateTime    @default(now())
@@ -82,6 +80,29 @@ model Course {
     challenges       Challenge[]
     quizzes          Quiz[]
     watchlists       Watchlist[]
+    thumbnail        Thumbnail[]
+}
+
+model OrphanImage {
+    id            String   @id @default(cuid())
+    createdAt     DateTime @default(now())
+    updatedAt     DateTime @updatedAt
+    url           String
+    uploadThingId String   @unique
+    expiredAt     DateTime
+
+    @@index([expiredAt])
+}
+
+model Thumbnail {
+    id            String   @id @default(cuid())
+    createdAt     DateTime @default(now())
+    updatedAt     DateTime @updatedAt
+    url           String
+    name          String
+    uploadThingId String   @unique
+    course        Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+    courseId      String
 }
 
 model Trailer {

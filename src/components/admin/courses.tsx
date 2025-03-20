@@ -108,7 +108,7 @@ const Courses = () => {
             >
               <div className="relative aspect-video overflow-hidden">
                 <img
-                  src={course.thumbnail || "/placeholder.svg"}
+                  src={course.thumbnail[0]?.url || "/placeholder.svg"}
                   alt={course.title}
                   // fill
                   className="object-cover transition-transform group-hover:scale-105"
