@@ -65,12 +65,17 @@ model VerificationToken {
     @@unique([identifier, token])
 }
 
+enum CourseDifficulty {
+    BEGINNER
+    INTERMEDIATE
+    ADVANCED
+}
 model Course {
     id               String      @id @default(cuid())
     title            String
     description      String
     courseLength     Int
-    courseDifficulty String
+    courseDifficulty  CourseDifficulty
     tags             String[]
     starterCode      String
     createdAt        DateTime    @default(now())
@@ -80,7 +85,7 @@ model Course {
     challenges       Challenge[]
     quizzes          Quiz[]
     watchlists       Watchlist[]
-    thumbnail        Thumbnail[]
+    thumbnail        Thumbnail[] 
 }
 
 model OrphanImage {

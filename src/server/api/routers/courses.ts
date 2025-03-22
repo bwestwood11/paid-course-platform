@@ -24,7 +24,7 @@ export const coursesRouter = createTRPCRouter({
         take: limit + 1,
         include: {
           thumbnail: true,
-        }
+        },
       });
 
       const { hasNextPage, nextCursor } = getPagination(courses, limit, "id");
@@ -83,5 +83,73 @@ export const coursesRouter = createTRPCRouter({
         },
       });
       return newCourse.id;
+    }),
+  getCourseById: systemAdminProcedure
+    .input(
+      z.object({
+        courseId: z.string(),
+      }),
+    )
+    .query(async ({ input }) => {
+      const { courseId } = input;
+      const course = await db.course.findUnique({
+        where: {
+          id: courseId,
+        },
+        select: {
+          id: true,
+          title: true,
+          description: true,
+          courseDifficulty: true,
+          _count: true,
+          tags: true,
+          starterCode: true,
+          thumbnail: {
+            select: {
+              url: true,
+              name: true,
+              uploadThingId: true,
+            },
+          },
+        },
+      });
+      return course;
+    }),
+  updateCourseDetails: systemAdminProcedure
+    .input(
+      z.object({
+        courseId: z.string(),
+        title: z.string().min(3).max(255),
+        description: z.string().min(3).max(300),
+        courseDifficulty: z.enum(["BEGINNER", "INTERMEDIATE", "ADVANCED"]),
+        tags: z.string().array(),
+        starterCode: z.string().url(),
+      }),
+    )
+    .mutation(async ({ input }) => {
+      const {
+        title,
+        description,
+        courseDifficulty,
+
+        tags,
+        starterCode,
+        courseId,
+      } = input;
+
+      const updatedCourse = await db.course.update({
+        where: {
+          id: courseId,
+        },
+        data: {
+          title,
+          description,
+          courseDifficulty,
+          tags,
+          starterCode,
+        },
+      });
+
+      return updatedCourse.id;
     }),
 });

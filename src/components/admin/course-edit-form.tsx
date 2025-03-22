@@ -3,11 +3,12 @@
 import type React from "react";
 
 import { useState } from "react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { X, Loader2, ArrowLeft } from "lucide-react";
+import { Loader2, ArrowLeft } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -32,75 +33,63 @@ import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
 import TagsInput from "../ui/tags-input";
 import { api } from "@/trpc/react";
-import { UploadDropzone } from "../ui/uploadthing";
-import { url } from "inspector";
-import Image from "next/image";
 
 const formSchema = z.object({
   title: z.string().min(5, "Title must be at least 5 characters"),
   description: z.string().min(20, "Description must be at least 20 characters"),
   difficulty: z.enum(["BEGINNER", "INTERMEDIATE", "ADVANCED"]),
-  thumbnail: z.object({
-    url: z.string().url("Please enter a valid URL"),
-    id: z.string(),
-    name: z.string(),
-  }),
   tags: z.array(z.string()).min(1, "At least one tag is required"),
-  githubUrl: z.string().url("Please enter a valid URL"),
+  githubUrl: z.string().url("Please enter a valid Github URL"),
 });
 
 type FormValues = z.infer<typeof formSchema>;
 
-export function CourseForm() {
+type Course = {
+  id: string;
+  title: string;
+  description: string;
+  difficulty: "BEGINNER" | "INTERMEDIATE" | "ADVANCED";
+  thumbnailUrl: string | undefined;
+  tags: string[];
+  githubUrl: string;
+};
+
+export function CourseEditForm({ course }: { course: Course }) {
   const router = useRouter();
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      title: "",
-      description: "",
-      difficulty: "BEGINNER",
-      tags: [],
-      githubUrl: "",
+      title: course.title,
+      description: course.description,
+      difficulty: course.difficulty,
+      tags: course.tags,
+      githubUrl: course.githubUrl,
     },
   });
-  const courseMutation = api.courses.createCourse.useMutation({
+
+  const courseMutation = api.courses.updateCourseDetails.useMutation({
     onSuccess: () => {
-      toast("Your new course has been created successfully.");
-      router.push("/admin/courses");
+      toast("Your new course has been updated successfully.");
     },
     onError: (error) => {
       console.error("Error submitting form:", error);
       toast("There was a problem creating your course.");
     },
   });
-
   async function onSubmit(data: FormValues) {
-    const thumbnailUrl = courseMutation.mutate({
+    courseMutation.mutate({
+      courseId: course.id,
       title: data.title,
       description: data.description,
       courseDifficulty: data.difficulty,
-      thumbnail: {
-        url: data.thumbnail.url,
-        id: data.thumbnail.id,
-        name: data.thumbnail.name,
-      },
       tags: data.tags,
       starterCode: data.githubUrl,
     });
   }
 
   return (
-    <div className="w-full">
-      <Button
-        variant="ghost"
-        className="mb-6 flex items-center gap-1 pl-0"
-        onClick={() => router.back()}
-      >
-        <ArrowLeft className="h-4 w-4" />
-        Back to courses
-      </Button>
-
+  
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
@@ -217,74 +206,7 @@ export function CourseForm() {
 
             <div className="space-y-6 md:col-span-2">
               <Separator className="my-4" />
-              <h2 className="text-xl font-semibold">Additional Information</h2>
-            </div>
-
-            <div className="space-y-6 md:col-span-2">
-              <FormField
-                control={form.control}
-                name="thumbnail"
-                render={({ field: { value, onChange, ...fieldProps } }) => (
-                  <FormItem>
-                    <FormLabel className="text-base">
-                      Course Thumbnail
-                    </FormLabel>
-                    <FormDescription>
-                      Recommended Size: 1280px x 720px
-                    </FormDescription>
-                    <FormControl>
-                      <div className="flex flex-col gap-4">
-                        {value?.url ? (
-                          <div className="rounded-md overflow-hidden">
-                            <Image
-                              src={value.url}
-                              alt="Course Thumbnail"
-                              width={640}
-                              height={360}
-                              className="rounded-md object-contain aspect-video"
-                            />
-                          </div>
-                        ) : (
-                          <UploadDropzone
-                          className="border-dashed border-foreground/30 rounded-lg hover:bg-muted hover:cursor-pointer hover:duration-100 transition-all"
-                            endpoint="imageUploader"
-                            onClientUploadComplete={(res) => {
-                              // Do something with the response
-                              const file = res[0];
-                              if (!file) return;
-                              onChange({
-                                url: file.ufsUrl,
-                                id: file.key,
-                                name: file.name,
-                              });
-                              console.log("Files: ", res);
-                            }}
-                            onUploadError={(error: Error) => {
-                              // Do something with the error.
-                              alert(`ERROR! ${error.message}`);
-                              toast("There was an error uploading the file.");
-                            }}
-                          />
-                        )}
-                        {value && (
-                          <div className="mt-2 w-full max-w-xs rounded-md border p-2">
-                            <p className="mb-1 text-sm text-muted-foreground">
-                              Selected file:
-                            </p>
-                            <p className="truncate text-sm font-medium">
-                              {value.name}
-                            </p>
-                          </div>
-                        )}
-                      </div>
-                    </FormControl>
-                    <FormDescription>
-                      Upload an image (max 5MB). Recommended size: 1280x720px.
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              <h2 className="text-xl font-semibold">Course Tags</h2>
             </div>
 
             <div className="space-y-6 md:col-span-2">
@@ -305,7 +227,7 @@ export function CourseForm() {
             </div>
           </div>
 
-          <div className="flex flex-col justify-end gap-3 pt-6 sm:flex-row">
+          <div className="flex flex-col justify-end gap-3 border-t pt-6 sm:flex-row">
             <Button
               variant="outline"
               type="button"
@@ -322,11 +244,11 @@ export function CourseForm() {
               {courseMutation.isPending && (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               )}
-              Create Course
+              Update Course
             </Button>
           </div>
         </form>
       </Form>
-    </div>
+
   );
 }
