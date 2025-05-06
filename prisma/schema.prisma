@@ -70,22 +70,22 @@ enum CourseDifficulty {
     INTERMEDIATE
     ADVANCED
 }
+
 model Course {
-    id               String      @id @default(cuid())
+    id               String           @id @default(cuid())
     title            String
     description      String
-    courseLength     Int
-    courseDifficulty  CourseDifficulty
+    courseDifficulty CourseDifficulty
     tags             String[]
     starterCode      String
-    createdAt        DateTime    @default(now())
-    updatedAt        DateTime    @updatedAt
+    createdAt        DateTime         @default(now())
+    updatedAt        DateTime         @updatedAt
     trailer          Trailer?
     sections         Section[]
     challenges       Challenge[]
     quizzes          Quiz[]
     watchlists       Watchlist[]
-    thumbnail        Thumbnail[] 
+    thumbnail        Thumbnail[]
 }
 
 model OrphanImage {
@@ -110,16 +110,31 @@ model Thumbnail {
     courseId      String
 }
 
+enum TrailerStatus {
+    waiting
+    preparing
+    ready
+    errored
+}
+
 model Trailer {
-    id          String   @id @default(cuid())
-    title       String
-    description String
-    videoUrl    String
-    thumbnail   String
-    createdAt   DateTime @default(now())
-    updatedAt   DateTime @updatedAt
-    course      Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
-    courseId    String   @unique
+    id             String         @id @default(cuid())
+    title          String
+    muxStatus      TrailerStatus?
+    muxAssetId     String?        @unique
+    muxUploadId    String         @unique
+    muxPlaybackId  String?        @unique
+    muxTrackId     String?        @unique
+    muxTrackStatus String?
+    description    String
+    videoUrl       String?
+    thumbnail      String?
+    uploadThingId  String?        @unique
+    previewUrl     String?
+    createdAt      DateTime       @default(now())
+    updatedAt      DateTime       @updatedAt
+    course         Course         @relation(fields: [courseId], references: [id], onDelete: Cascade)
+    courseId       String         @unique
 }
 
 model Section {
@@ -131,20 +146,32 @@ model Section {
     course         Course    @relation(fields: [courseId], references: [id], onDelete: Cascade)
     courseId       String
     chapters       Chapter[]
+
+    @@index([sequenceNumber])
+    @@index([courseId])
 }
 
 model Chapter {
-    id             String   @id @default(cuid())
+    id             String         @id @default(cuid())
     title          String
     description    String
-    videoUrl       String
-    thumbnail      String
+    muxStatus      TrailerStatus?
+    muxAssetId     String?        @unique
+    muxUploadId    String?        @unique
+    muxPlaybackId  String?        @unique
+    muxTrackId     String?        @unique
+    muxTrackStatus String?
+    thumbnail      String?
+    uploadThingId  String?        @unique
+    previewUrl     String?
     sequenceNumber Int
     videoLength    Int
-    createdAt      DateTime @default(now())
-    updatedAt      DateTime @updatedAt
-    section        Section  @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+    createdAt      DateTime       @default(now())
+    updatedAt      DateTime       @updatedAt
+    section        Section        @relation(fields: [sectionId], references: [id], onDelete: Cascade)
     sectionId      String
+
+    @@index([sequenceNumber])
 }
 
 model Quiz {

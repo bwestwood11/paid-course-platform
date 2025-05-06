@@ -13,7 +13,7 @@ import { ZodError } from "zod";
 
 import { auth } from "@/server/auth";
 import { db } from "@/server/db";
-import { cache__getUser, getUser } from "@/lib/auth";
+import { getUser } from "@/lib/auth";
 
 
 /**

@@ -1,4 +1,4 @@
-import { getCurrentUser, getUser } from "@/lib/auth";
+import { getCurrentUser } from "@/lib/auth";
 import { db } from "@/server/db";
 import { createUploadthing, type FileRouter } from "uploadthing/next";
 import { UploadThingError } from "uploadthing/server";
@@ -20,7 +20,7 @@ export const ourFileRouter = {
     },
   })
     // Set permissions and file types for this FileRoute
-    .middleware(async ({ req }) => {
+    .middleware(async () => {
       // This code runs on your server before upload
       const user = await getCurrentUser(true)
       
@@ -41,7 +41,8 @@ export const ourFileRouter = {
             }
           })
       } catch (error) {
-        
+        console.error("Error saving file to database:", error);
+        throw new UploadThingError("Failed to save file to database");
       }
       console.log("Upload complete for userId:", metadata.userId);
 

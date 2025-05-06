@@ -2,12 +2,12 @@
 
 import type React from "react";
 
-import { useState } from "react";
+
 import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { X, Loader2, ArrowLeft } from "lucide-react";
+import { Loader2, ArrowLeft } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -33,7 +33,6 @@ import { toast } from "sonner";
 import TagsInput from "../ui/tags-input";
 import { api } from "@/trpc/react";
 import { UploadDropzone } from "../ui/uploadthing";
-import { url } from "inspector";
 import Image from "next/image";
 
 const formSchema = z.object({
@@ -64,6 +63,7 @@ export function CourseForm() {
       githubUrl: "",
     },
   });
+  
   const courseMutation = api.courses.createCourse.useMutation({
     onSuccess: () => {
       toast("Your new course has been created successfully.");
@@ -76,7 +76,7 @@ export function CourseForm() {
   });
 
   async function onSubmit(data: FormValues) {
-    const thumbnailUrl = courseMutation.mutate({
+    courseMutation.mutate({
       title: data.title,
       description: data.description,
       courseDifficulty: data.difficulty,
@@ -145,7 +145,7 @@ export function CourseForm() {
                     </FormControl>
                     <FormDescription>
                       A comprehensive description helps students understand what
-                      they'll learn.
+                      they&apos;ll learn.
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
@@ -224,7 +224,7 @@ export function CourseForm() {
               <FormField
                 control={form.control}
                 name="thumbnail"
-                render={({ field: { value, onChange, ...fieldProps } }) => (
+                render={({ field: { value, onChange } }) => (
                   <FormItem>
                     <FormLabel className="text-base">
                       Course Thumbnail

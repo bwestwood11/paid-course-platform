@@ -1,16 +1,8 @@
 import React from "react";
 import { SidebarTrigger } from "../ui/sidebar";
 import { Separator } from "../ui/separator";
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "../ui/breadcrumb";
 import { HydrateClient } from "@/trpc/server";
-import LayoutBreadcrumb, { LayoutBreadcrumbType } from "../ui/layout-breadcrumb";
+import LayoutBreadcrumb, { type LayoutBreadcrumbType } from "../ui/layout-breadcrumb";
 
 const PageLayout = ({ children, breadcrumb }: { children: React.ReactNode, breadcrumb: LayoutBreadcrumbType[] }) => {
   return (

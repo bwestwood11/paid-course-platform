@@ -1,6 +1,6 @@
 import { auth } from "@/server/auth";
 import { db } from "@/server/db";
-import { Prisma } from "@prisma/client";
+import { type Prisma } from "@prisma/client";
 import { unstable_cache } from "next/cache";
 
 // Define the UserReturn type with the correct Prisma selection

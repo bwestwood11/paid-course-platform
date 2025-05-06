@@ -2,13 +2,12 @@
 
 import type React from "react";
 
-import { useState } from "react";
-import Image from "next/image";
+
 import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { Loader2, ArrowLeft } from "lucide-react";
+import { Loader2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -89,8 +88,8 @@ export function CourseEditForm({ course }: { course: Course }) {
   }
 
   return (
-  
-      <Form {...form}>
+    
+         <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
             <div className="space-y-6 md:col-span-2">
@@ -134,7 +133,7 @@ export function CourseEditForm({ course }: { course: Course }) {
                     </FormControl>
                     <FormDescription>
                       A comprehensive description helps students understand what
-                      they'll learn.
+                      they&apos;ll learn.
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
@@ -249,6 +248,5 @@ export function CourseEditForm({ course }: { course: Course }) {
           </div>
         </form>
       </Form>
-
   );
 }

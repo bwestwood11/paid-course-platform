@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Github } from "lucide-react";
 import { signIn } from "@/server/auth";
+import Image from "next/image";
 
 export async function LoginForm({
   className,
@@ -66,10 +67,12 @@ export async function LoginForm({
             </div>
           </div>
           <div className="relative hidden bg-muted md:block">
-            <img
+            <Image
               src="/placeholder.svg"
               alt="Image"
               className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
+              fill
+              priority
             />
           </div>
         </CardContent>

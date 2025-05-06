@@ -4,55 +4,11 @@ import Link from "next/link";
 import React from "react";
 import { Button } from "../ui/button";
 import { Plus } from "lucide-react";
-import Image from "next/image";
 import { format } from "@/lib/utils";
 import { Badge } from "../ui/badge";
 import { api } from "@/trpc/react";
+import Image from "next/image";
 
-const courses = [
-  {
-    id: "1",
-    title: "Introduction to Web Development",
-    image: "/placeholder.svg?height=200&width=300",
-    difficulty: "Beginner",
-    createdAt: new Date("2023-01-15"),
-  },
-  {
-    id: "2",
-    title: "Advanced React Patterns",
-    image: "/placeholder.svg?height=200&width=300",
-    difficulty: "Advanced",
-    createdAt: new Date("2023-03-22"),
-  },
-  {
-    id: "3",
-    title: "CSS Mastery",
-    image: "/placeholder.svg?height=200&width=300",
-    difficulty: "Intermediate",
-    createdAt: new Date("2023-02-10"),
-  },
-  {
-    id: "4",
-    title: "JavaScript Fundamentals",
-    image: "/placeholder.svg?height=200&width=300",
-    difficulty: "Beginner",
-    createdAt: new Date("2023-04-05"),
-  },
-  {
-    id: "5",
-    title: "Building APIs with Node.js",
-    image: "/placeholder.svg?height=200&width=300",
-    difficulty: "Intermediate",
-    createdAt: new Date("2023-05-18"),
-  },
-  {
-    id: "6",
-    title: "TypeScript Deep Dive",
-    image: "/placeholder.svg?height=200&width=300",
-    difficulty: "Advanced",
-    createdAt: new Date("2023-06-30"),
-  },
-];
 
 // Helper function to get badge color based on difficulty
 const getDifficultyColor = (difficulty: string) => {
@@ -107,10 +63,10 @@ const Courses = () => {
               className="group overflow-hidden rounded-lg border bg-card shadow-sm transition-all hover:shadow-md"
             >
               <div className="relative aspect-video overflow-hidden">
-                <img
-                  src={course.thumbnail[0]?.url || "/placeholder.svg"}
+                <Image
+                  src={course.thumbnail[0]?.url ?? "/placeholder.svg"}
                   alt={course.title}
-                  // fill
+                  fill
                   className="object-cover transition-transform group-hover:scale-105"
                 />
               </div>

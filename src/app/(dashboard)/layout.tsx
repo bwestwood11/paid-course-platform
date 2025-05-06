@@ -1,7 +1,5 @@
 import "@/styles/globals.css";
 
-import { TRPCReactProvider } from "@/trpc/react";
-import TailwindIndicator from "@/components/ui/tailwindIndicator";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/layout/sidebar";
 

@@ -12,6 +12,10 @@ const config = {
         hostname: "a0zpi27nyl.ufs.sh",
         protocol: "https",
       },
+      {
+        hostname: "image.mux.com",
+        protocol: "https",
+      },
     ],
   },
 };
