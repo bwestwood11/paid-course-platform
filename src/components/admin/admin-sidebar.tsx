@@ -1,4 +1,4 @@
-import type * as React from "react"
+import type * as React from "react";
 
 import {
   Sidebar,
@@ -11,11 +11,10 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarRail,
-} from "@/components/ui/sidebar"
+} from "@/components/ui/sidebar";
 
-import { AdminSearchCommand } from "./admin-search-command"
-
-
+import { AdminSearchCommand } from "./admin-search-command";
+import { SearchInput } from "./search/search-input";
 
 const data = {
   versions: ["1.0.1", "1.1.0-alpha", "2.0.0-beta1"],
@@ -27,25 +26,29 @@ const data = {
         {
           title: "Courses",
           url: "/admin/courses",
-          isActive: false
+          isActive: false,
         },
       ],
-    }, 
+    },
   ],
-}
+};
 
-export function AdminSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+export function AdminSidebar({
+  ...props
+}: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar {...props}>
       <SidebarHeader>
-    
-      <AdminSearchCommand />
+        {/* <AdminSearchCommand /> */}
+        <SearchInput />
       </SidebarHeader>
       <SidebarContent>
         {/* We create a SidebarGroup for each parent. */}
         {data.navMain.map((item) => (
           <SidebarGroup key={item.title}>
-            <SidebarGroupLabel className="text-sidebar-primary font-medium">{item.title}</SidebarGroupLabel>
+            <SidebarGroupLabel className="font-medium text-sidebar-primary">
+              {item.title}
+            </SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
                 {item.items.map((item) => (
@@ -66,6 +69,5 @@ export function AdminSidebar({ ...props }: React.ComponentProps<typeof Sidebar>)
       </SidebarContent>
       <SidebarRail />
     </Sidebar>
-  )
+  );
 }
-
