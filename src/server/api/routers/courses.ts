@@ -1,16 +1,25 @@
 import { z } from "zod";
 
-import {
-  createTRPCRouter,
-  systemAdminProcedure,
-} from "@/server/api/trpc";
+import { createTRPCRouter, systemAdminProcedure } from "@/server/api/trpc";
 import { db } from "@/server/db";
 import { getPagination } from "@/lib/utils";
 import { TRPCError } from "@trpc/server";
 import { mux } from "@/lib/mux";
 import { utapi } from "@/lib/uploadthing";
+import { searchEngine } from "@/lib/search";
 
 export const coursesRouter = createTRPCRouter({
+  getSearchResult: systemAdminProcedure
+    .input(
+      z.object({
+        query: z.string().min(2).max(255),
+      }),
+    )
+    .query(async ({ input }) => {
+      const { query } = input;
+
+      return searchEngine.search(query);
+    }),
   getAllAdminCourses: systemAdminProcedure
     .input(
       z.object({
@@ -18,7 +27,7 @@ export const coursesRouter = createTRPCRouter({
         limit: z.number().default(10),
       }),
     )
-    .query(async ({  input }) => {
+    .query(async ({ input }) => {
       const { cursor, limit } = input;
       const courses = await db.course.findMany({
         cursor: cursor ? { id: cursor } : undefined,
