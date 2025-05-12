@@ -15,6 +15,13 @@ export class ChapterSearchProvider extends BaseSearchProvider {
       where: {
         title: { contains: query, mode: "insensitive" },
       },
+      include: {
+        section: {
+          select: {
+            courseId: true,
+          },
+        },
+      },
     });
 
     return chapters.map((list) => {
@@ -22,7 +29,7 @@ export class ChapterSearchProvider extends BaseSearchProvider {
         id: list.id,
         title: list.title,
         description: list.description || "No description",
-        url: `/dashboard/leadhub/contactlists/${list.id}`,
+        url: `/admin/courses/${list.section.courseId}/content/${list.id}/edit`,
       };
     });
   }
@@ -36,18 +43,18 @@ export class CourseSearchProvider extends BaseSearchProvider {
   protected async handleSearch(query: string): Promise<SearchResult[]> {
     if (!query.trim()) return [];
 
-    const chapters = await db.course.findMany({
+    const courses = await db.course.findMany({
       where: {
         title: { contains: query, mode: "insensitive" },
       },
     });
 
-    return chapters.map((list) => {
+    return courses.map((list) => {
       return {
         id: list.id,
         title: list.title,
         description: list.description || "No description",
-        url: `/dashboard/leadhub/contactlists/${list.id}`,
+        url: `/admin/courses/${list.id}`,
       };
     });
   }

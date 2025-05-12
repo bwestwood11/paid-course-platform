@@ -242,22 +242,6 @@ export default function CourseContent({
           {updateSectionsMutation.isPending ? "Saving..." : "Save Changes"}
         </Button>
       </CardContent>
-
-      {/* {isChangesPending && (
-        <div className="">
-          <Toast
-            state={
-              updateSectionsMutation.isPending
-                ? "loading"
-                : updateSectionsMutation.data
-                  ? "success"
-                  : "initial"
-            }
-            onSave={saveChanges}
-            onReset={() => form.reset()}
-          />
-        </div>
-      )} */}
     </Card>
   );
 }

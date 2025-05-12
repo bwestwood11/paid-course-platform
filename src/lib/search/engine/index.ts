@@ -50,6 +50,7 @@ export class SearchEngine {
   }
 
   async search(raw: string): Promise<GroupedSearchResult[]> {
+    // raw = :chapter new chapter
     const { type, query } = this.parseQuery(raw);
 
     if (!query) return [];

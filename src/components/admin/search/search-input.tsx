@@ -12,22 +12,8 @@ import {
 } from "@/components/ui/command";
 import {
   UserPlus,
-  Mail,
-  Calendar,
   Users,
-  Settings,
-  HandHelping,
-  UserRoundSearch,
-  UsersRound,
-  ReceiptText,
-  SquareKanban,
-  LayoutTemplate,
-  CalendarClock,
-  Waypoints,
-  MailPlus,
-  Workflow,
   User,
-  MessageCircle,
   ListChecks,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -38,91 +24,16 @@ import { api } from "@/trpc/react";
 import { Input } from "@/components/ui/input";
 
 const pages = [
-  {
-    label: "Add Lead",
-    href: "/dashboard/leadhub/leads/add-lead",
-    icon: <UserPlus className="h-4 w-4" />,
-  },
-  {
-    label: "Manage Campaigns",
-    href: "/dashboard/campaigns/email-campaign",
-    icon: <Mail className="h-4 w-4" />,
-  },
-  {
-    label: "Schedule Event",
-    href: "/dashboard/events",
-    icon: <Calendar className="h-4 w-4" />,
-  },
-  {
-    label: "Manage Team",
-    href: "/dashboard/organization/members",
-    icon: <Users className="h-4 w-4" />,
-  },
-  {
-    label: "Settings",
-    href: "/dashboard/organization/settings",
-    icon: <Settings className="h-4 w-4" />,
-  },
-  {
-    label: "Support",
-    href: "/dashboard/support",
-    icon: <HandHelping className="h-4 w-4" />,
-  },
-  {
-    label: "Find Leads",
-    href: "/dashboard/leadhub/lead-finder",
-    icon: <UserRoundSearch className="h-4 w-4" />,
-  },
-  {
-    label: "Manage Leads",
-    href: "/dashboard/leadhub/leads",
-    icon: <UsersRound className="h-4 w-4" />,
-  },
-  {
-    label: "Payment History",
-    href: "/dashboard/organization/payment",
-    icon: <ReceiptText className="h-4 w-4" />,
-  },
-  {
-    label: "Board",
-    href: "/dashboard/board",
-    icon: <SquareKanban className="h-4 w-4" />,
-  },
-  {
-    label: "Email Templates",
-    href: "/dashboard/campaigns/email-templates",
-    icon: <LayoutTemplate className="h-4 w-4" />,
-  },
-  {
-    label: "Calendar Events",
-    href: "/dashboard/events",
-    icon: <CalendarClock className="h-4 w-4" />,
-  },
-  {
-    label: "Warmup",
-    href: "/dashboard/warmup",
-    icon: <Waypoints className="h-4 w-4" />,
-  },
-  {
-    label: "Mailbox",
-    href: "/dashboard/mailbox",
-    icon: <Mail className="h-4 w-4" />,
-  },
-  {
-    label: "Compose Mail",
-    href: "/dashboard/mailbox?compose=1",
-    icon: <MailPlus className="h-4 w-4" />,
-  },
-  {
-    label: "Integrations",
-    href: "/dashboard/integrations",
-    icon: <Workflow className="h-4 w-4" />,
-  },
-  {
-    label: "WhatsApp",
-    href: "/dashboard/whatsapp",
-    icon: <MessageCircle className="h-4 w-4" />,
-  },
+{
+  label: "Create New Course",
+  href: "/admin/courses/new",
+  icon: <UserPlus className="h-4 w-4" />,
+},
+{
+  label: "Your Courses",
+  href: "/admin/courses",
+  icon: <Users className="h-4 w-4" />,
+}
 ] satisfies { label: string; href: string; icon: React.ReactNode }[];
 
 const useCommandShortcut = (shortcutKey: string) => {
@@ -205,7 +116,7 @@ export function SearchInput() {
     <>
       <div className="relative w-full max-w-[400px]">
         <Input
-          placeholder="Find a lead, contact list, or campaign"
+          placeholder="Search..."
           className="rounded-full pl-6 pr-8"
           onFocus={() => setOpen(true)}
         />
@@ -262,25 +173,6 @@ export function SearchInput() {
             ))}
           </CommandGroup>
 
-          <CommandGroup heading="Tips">
-            <CommandItem
-              value="::tip"
-              disabled
-              className="flex items-center py-2 text-muted-foreground"
-            >
-              <div className="flex items-center">
-                <div className="mr-2 rounded-md bg-muted p-1.5">
-                  <User className="h-4 w-4 text-muted-foreground" />
-                </div>
-                <span>
-                  Type{" "}
-                  <span className="font-mono text-foreground">:chapter</span> to
-                  search leads
-                </span>
-              </div>
-            </CommandItem>
-          </CommandGroup>
-
           {isFetching && data?.length === 0 ? (
             <CommandLoading className="flex items-center justify-center py-4 text-sm text-muted-foreground">
               Finding results...
@@ -330,7 +222,7 @@ const SearchCommandItem = React.memo(
       <CommandItem
         {...props}
         aria-label={`Navigate to ${label}`}
-        className="flex items-center gap-2 rounded-md px-2 py-1.5 text-sm outline-none"
+        className="flex items-center gap-2 rounded-md px-2 py-1.5 text-sm outline-none cursor-pointer"
         onSelect={handleSelect}
       >
         <div className="rounded-md bg-muted p-1.5">{icon}</div>

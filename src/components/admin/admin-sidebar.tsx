@@ -12,8 +12,6 @@ import {
   SidebarMenuItem,
   SidebarRail,
 } from "@/components/ui/sidebar";
-
-import { AdminSearchCommand } from "./admin-search-command";
 import { SearchInput } from "./search/search-input";
 
 const data = {
