@@ -12,6 +12,7 @@ type UserReturn = Prisma.UserGetPayload<{
     email: true;
     image: true;
     createdAt: true;
+    stripeCustomerId: true;
   };
 }>;
 
@@ -34,6 +35,7 @@ export const getUser = async (UserId: string) => {
       email: true,
       image: true,
       createdAt: true,
+      stripeCustomerId: true
     }
   });
   if (!user) {

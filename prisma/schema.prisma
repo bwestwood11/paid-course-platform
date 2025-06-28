@@ -53,11 +53,15 @@ model User {
     sessions      Session[]
     submissions   Submission[]
 
-    stripeCustomerId  String?
+    stripeCustomerId String?     @unique
+    amountPaid       Int         @default(0)
+    datePaid         DateTime?
+    createdAt        DateTime    @default(now())
+    updatedAt        DateTime    @updatedAt
+    watchlists       Watchlist[]
 
-    createdAt     DateTime     @default(now())
-    updatedAt     DateTime     @updatedAt
-    watchlists    Watchlist[]
+    @@index([email])
+    @@index([stripeCustomerId])
 }
 
 model VerificationToken {
