@@ -1,0 +1,1 @@
+export const STRIPE_COURSE_PRICE_IN_USD = 249

@@ -4,6 +4,7 @@ import { coursesRouter } from "./routers/courses";
 import { trailerRouter } from "./routers/trailer";
 import { quizRouter } from "./routers/quiz";
 import { challengesRouter } from "./routers/challenges";
+import { paymentRouter } from "./routers/payments";
 
 /**
  * This is the primary router for your server.
@@ -15,7 +16,8 @@ export const appRouter = createTRPCRouter({
   courses: coursesRouter,
   trailer: trailerRouter,
   quizzes: quizRouter,
-  challenges: challengesRouter
+  challenges: challengesRouter,
+  payments: paymentRouter
 });
 
 // export type definition of API
