@@ -6,7 +6,8 @@ import {
   useStripe,
   PaymentElement,
 } from "@stripe/react-stripe-js";
-import { FormEvent, useState } from "react";
+import type { FormEvent } from "react";
+import { useState } from "react";
 import { Button } from "../ui/button";
 import {
   Dialog,

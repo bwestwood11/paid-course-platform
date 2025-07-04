@@ -2,6 +2,7 @@ import "@/styles/globals.css";
 
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/layout/sidebar";
+import Navbar from "@/components/layout/navbar";
 
 export default function RootLayout({
   children,
@@ -9,7 +10,10 @@ export default function RootLayout({
   return (
     <SidebarProvider>
       <AppSidebar />
-      <SidebarInset>{children}</SidebarInset>
+      <SidebarInset>
+        <Navbar />
+        {children}
+      </SidebarInset>
     </SidebarProvider>
   );
 }

@@ -1,4 +1,4 @@
-import { LoginModal } from "@/components/auth/login-modal";
+import Dashboard from "@/components/dashboard/dashboard";
 import PageLayout from "@/components/layout/page-layout";
 const breadcrumb = [
   { title: "Dashboard" },
@@ -9,7 +9,8 @@ export default async function Home() {
 
   return (
     <PageLayout breadcrumb={breadcrumb}>
-      <LoginModal />
+      <Dashboard />
+      {/* <LoginModal /> */}
     </PageLayout>
   );
 }
