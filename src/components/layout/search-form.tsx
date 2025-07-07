@@ -14,7 +14,7 @@ export function SearchForm({ ...props }: React.ComponentProps<"form">) {
           </Label>
           <SidebarInput
             id="search"
-            placeholder="Search the docs..."
+            placeholder="Search courses..."
             className="pl-8 border-sidebar-border focus-visible:ring-sidebar-primary"
           />
           <Search className="pointer-events-none absolute left-2 top-1/2 size-4 -translate-y-1/2 select-none text-sidebar-primary opacity-70" />

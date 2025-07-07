@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import { createTRPCRouter, systemAdminProcedure } from "@/server/api/trpc";
+import { createTRPCRouter, protectedProcedure, publicProcedure, systemAdminProcedure } from "@/server/api/trpc";
 import { db } from "@/server/db";
 import { getPagination } from "@/lib/utils";
 import { TRPCError } from "@trpc/server";
@@ -20,7 +20,7 @@ export const coursesRouter = createTRPCRouter({
 
       return searchEngine.search(query);
     }),
-  getAllAdminCourses: systemAdminProcedure
+  getAllAdminCourses: publicProcedure
     .input(
       z.object({
         cursor: z.string().optional(),

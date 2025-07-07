@@ -53,12 +53,13 @@ model User {
     sessions      Session[]
     submissions   Submission[]
 
-    stripeCustomerId String?     @unique
-    amountPaid       Int         @default(0)
-    datePaid         DateTime?
-    createdAt        DateTime    @default(now())
-    updatedAt        DateTime    @updatedAt
-    watchlists       Watchlist[]
+    stripeCustomerId   String?              @unique
+    amountPaid         Int                  @default(0)
+    datePaid           DateTime?
+    createdAt          DateTime             @default(now())
+    updatedAt          DateTime             @updatedAt
+    watchlists         Watchlist[]
+    userCourseProgress UserCourseProgress[]
 
     @@index([email])
     @@index([stripeCustomerId])
@@ -79,20 +80,37 @@ enum CourseDifficulty {
 }
 
 model Course {
-    id               String           @id @default(cuid())
-    title            String
-    description      String
-    courseDifficulty CourseDifficulty
-    tags             String[]
-    starterCode      String
-    createdAt        DateTime         @default(now())
-    updatedAt        DateTime         @updatedAt
-    trailer          Trailer?
-    sections         Section[]
-    challenges       Challenge[]
-    quizzes          Quiz[]
-    watchlists       Watchlist[]
-    thumbnail        Thumbnail[]
+    id                 String               @id @default(cuid())
+    title              String
+    description        String
+    courseDifficulty   CourseDifficulty
+    tags               String[]
+    starterCode        String
+    createdAt          DateTime             @default(now())
+    updatedAt          DateTime             @updatedAt
+    trailer            Trailer?
+    sections           Section[]
+    challenges         Challenge[]
+    quizzes            Quiz[]
+    watchlists         Watchlist[]
+    thumbnail          Thumbnail[]
+    userCourseProgress UserCourseProgress[]
+}
+
+model UserCourseProgress {
+    id                String   @id @default(cuid())
+    user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+    userId            String
+    course            Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+    courseId          String
+    completedChapters String[] // store chapter IDs or numbers
+    percentComplete   Int      @default(0)
+    lastAccessed      DateTime @default(now())
+    updatedAt         DateTime @updatedAt
+
+    @@unique([userId, courseId])
+    @@index([userId])
+    @@index([courseId])
 }
 
 model OrphanImage {

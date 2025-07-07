@@ -1,19 +1,17 @@
 import "@/styles/globals.css";
-
-import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
-import { AppSidebar } from "@/components/layout/sidebar";
 import Navbar from "@/components/layout/navbar";
+import { CourseSidebar } from "@/components/layout/course-sidebar";
 
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <SidebarProvider>
-      <AppSidebar />
-      <SidebarInset>
+    <div className="flex">
+      <CourseSidebar />
+      <div className="flex-1">
         <Navbar />
         {children}
-      </SidebarInset>
-    </SidebarProvider>
+      </div>
+    </div>
   );
 }

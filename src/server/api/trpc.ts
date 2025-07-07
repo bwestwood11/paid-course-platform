@@ -15,7 +15,6 @@ import { auth } from "@/server/auth";
 import { db } from "@/server/db";
 import { getUser } from "@/lib/auth";
 
-
 /**
  * 1. CONTEXT
  *
@@ -35,7 +34,7 @@ export const createTRPCContext = async (opts: { headers: Headers }) => {
     db,
     session,
     ...opts,
-  }; 
+  };
 };
 
 /**
@@ -112,7 +111,7 @@ const systemAdminMiddleware = t.middleware(async ({ ctx, next }) => {
   }
   const userId = ctx.session.user.id;
   const user = await getUser(userId);
-  console.log('user', user);
+  console.log("user", user);
   if (!user) {
     throw new TRPCError({ code: "UNAUTHORIZED" });
   }
@@ -155,5 +154,19 @@ export const protectedProcedure = t.procedure
       },
     });
   });
+
+export const premiumProcedure = protectedProcedure.use(
+  async ({ ctx, next }) => {
+    if (!ctx.session?.user?.datePaid) {
+      throw new TRPCError({
+        code: "FORBIDDEN",
+        message: "Premium access required",
+      });
+    }
+    return next({
+      ctx,
+    });
+  },
+);
 
 export const systemAdminProcedure = publicProcedure.use(systemAdminMiddleware);

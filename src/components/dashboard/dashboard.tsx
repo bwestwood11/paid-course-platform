@@ -14,10 +14,10 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { api } from "@/trpc/server";
 
-export default function Dashboard() {
+export default async function Dashboard() {
   const continuelearningCourses = [
     {
       id: 1,
@@ -162,9 +162,10 @@ export default function Dashboard() {
     }
   };
 
+  const courses = await api.courses.getAllAdminCourses({});
+
   return (
     <div className="min-h-screen">
-
       <main className="mx-auto max-w-7xl px-6 py-8">
         {/* Continue Learning Section */}
         <section className="mb-12">
@@ -228,19 +229,17 @@ export default function Dashboard() {
         </section>
 
         {/* All Materials Section */}
-        <section className="space-y-6 w-full">
+        <section className="w-full space-y-6">
           <div className="flex justify-between xl:items-center">
             <div className="flex items-center gap-2">
               <h2 className="text-2xl font-bold">All Materials</h2>
-              <Badge variant="secondary">
-                27
-              </Badge>
+              <Badge variant="secondary">27</Badge>
               <ChevronDown className="h-4 w-4 text-gray-400" />
             </div>
           </div>
 
           {/* Filters */}
-          <div className="items flex w-full  flex-col xl:flex-row justify-between gap-3 xl:items-center">
+          <div className="items flex w-full flex-col justify-between gap-3 xl:flex-row xl:items-center">
             <Tabs defaultValue="not-started" className="w-auto">
               <TabsList className="justify-between bg-muted max-sm:w-full">
                 <TabsTrigger
@@ -292,10 +291,10 @@ export default function Dashboard() {
           </div>
 
           {/* Materials Grid */}
-          <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 xl:grid-cols-3 ">
-            {allMaterials.map((material) => (
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 xl:grid-cols-3">
+            {courses.courses.map((course) => (
               <Card
-                key={material.id}
+                key={course.id}
                 className="overflow-hidden transition-shadow hover:shadow-lg"
               >
                 <CardContent className="flex h-full flex-col p-0">
@@ -303,43 +302,43 @@ export default function Dashboard() {
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       src={
-                        "https://images.unsplash.com/photo-1749740429722-fed0e4e9cf15?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDF8MHxmZWF0dXJlZC1waG90b3MtZmVlZHw0MXx8fGVufDB8fHx8fA%3D%3D"
+                        course.thumbnail[0]?.url ??
+                        "https://via.placeholder.com/200x120"
                       }
-                      alt={material.title}
+                      alt={course.thumbnail[0]?.name}
                       className="h-32 w-full object-cover"
                     />
                     <Badge
-                      className={`absolute left-2 top-2 text-xs text-white ${getTypeColor(material.type)}`}
+                      className={`absolute left-2 top-2 text-xs text-white`}
                     >
-                      {material.items} {material.itemType}
+                      {course.tags}
                     </Badge>
                   </div>
                   <div className="flex flex-1 flex-col p-4">
                     <div className="mb-2 flex items-center gap-2">
-                      <div
+                      {/* <div
                         className={`rounded p-1 ${getTypeColor(material.type)} text-white`}
                       >
                         {getTypeIcon(material.type)}
-                      </div>
-                      <span className="text-sm font-medium">
+                      </div> */}
+                      {/* <span className="text-sm font-medium">
                         {material.type}
-                      </span>
-                      {material.certified && (
-                        <Badge variant="outline" className="text-xs">
-                          Certified
-                        </Badge>
-                      )}
+                      </span> */}
+
+                      <Badge variant="outline" className="text-xs">
+                        Certified
+                      </Badge>
                     </div>
 
                     <h3 className="mb-2 line-clamp-2 text-sm font-semibold">
-                      {material.title}
+                      {course.title}
                     </h3>
 
                     <div className="mb-3 flex items-center gap-2">
                       <Badge variant="secondary" className="text-xs">
-                        {material.category}
+                        {course.tags[0]}
                       </Badge>
-                      <Badge
+                      {/* <Badge
                         variant={
                           material.status === "Urgent"
                             ? "destructive"
@@ -348,22 +347,12 @@ export default function Dashboard() {
                         className="text-xs"
                       >
                         {material.status}
-                      </Badge>
+                      </Badge> */}
                     </div>
 
-                    {material.points && (
-                      <div className="mb-2 flex items-center gap-1 text-sm">
-                        <Star className="h-4 w-4 fill-current text-yellow-500" />
-                        <span className="font-medium">
-                          {material.points}pts
-                        </span>
-                        <span className="text-gray-500">
-                          Passing point {material.points} pts
-                        </span>
-                      </div>
-                    )}
 
-                    {material.progress > 0 ? (
+
+                    {/* {material.progress > 0 ? (
                       <div className="mb-3">
                         <div className="mb-1 flex items-center justify-between text-sm">
                           <span className="text-gray-600">Progress:</span>
@@ -381,7 +370,7 @@ export default function Dashboard() {
                       </div>
                     )}
 
-                    <div className="flex-1 h-full flex items-end">
+                    <div className="flex h-full flex-1 items-end">
                       <Button
                         size="sm"
                         className="w-full"
@@ -393,7 +382,7 @@ export default function Dashboard() {
                             ? "View"
                             : "Start"}
                       </Button>
-                    </div>
+                    </div> */}
                   </div>
                 </CardContent>
               </Card>
