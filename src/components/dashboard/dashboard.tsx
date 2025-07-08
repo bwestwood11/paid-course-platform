@@ -16,121 +16,11 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { api } from "@/trpc/server";
+import ContinuedLearning from "./continued-learning";
+import { auth } from "@/server/auth";
 
 export default async function Dashboard() {
-  const continuelearningCourses = [
-    {
-      id: 1,
-      title: "Creating Engaging Learning Journeys: UI/UX Best Practices",
-      materials: 12,
-      progress: 80,
-      type: "Course",
-      thumbnail: "/placeholder.svg?height=120&width=200",
-      nextStep: "Mastering UI Design for Impactful Solutions",
-    },
-    {
-      id: 2,
-      title: "The Art of Blending Aesthetics and Functionality in UI/UX Design",
-      materials: 12,
-      progress: 30,
-      type: "Course",
-      thumbnail: "/placeholder.svg?height=120&width=200",
-      nextStep: "Advanced techniques commonly used in UI/UX Design",
-    },
-  ];
-
-  const allMaterials = [
-    {
-      id: 1,
-      title: "5 Steps Optimizing User Experience",
-      type: "Quiz",
-      category: "UI/UX Design",
-      status: "Urgent",
-      progress: 0,
-      points: 20,
-      items: 20,
-      itemType: "Question",
-      thumbnail: "/placeholder.svg?height=120&width=200",
-      certified: true,
-    },
-    {
-      id: 2,
-      title: "Heuristics: 10 Usability Principles To Improve UI Design",
-      type: "Page",
-      category: "Learning Design",
-      status: "Not Urgent",
-      progress: 40,
-      items: 12,
-      itemType: "Chapters",
-      thumbnail: "/placeholder.svg?height=120&width=200",
-    },
-    {
-      id: 3,
-      title: "General Knowledge & Methodology - Layout & Speci...",
-      type: "Learning Path",
-      category: "Consistency",
-      status: "Not Urgent",
-      progress: 0,
-      items: 20,
-      itemType: "Path",
-      thumbnail: "/placeholder.svg?height=120&width=200",
-    },
-    {
-      id: 4,
-      title: "Mastering UI Design for Impactful Solutions",
-      type: "Course",
-      category: "UI/UX Design",
-      status: "Not Urgent",
-      progress: 50,
-      items: 12,
-      itemType: "Materials",
-      thumbnail: "/placeholder.svg?height=120&width=200",
-    },
-    {
-      id: 5,
-      title: "Advanced Color Theory in Design",
-      type: "Course",
-      category: "UI/UX Design",
-      status: "Urgent",
-      progress: 75,
-      items: 12,
-      itemType: "Chapters",
-      thumbnail: "/placeholder.svg?height=120&width=200",
-    },
-    {
-      id: 6,
-      title: "Typography Fundamentals",
-      type: "Quiz",
-      category: "Design Basics",
-      status: "Not Urgent",
-      progress: 0,
-      items: 20,
-      itemType: "Question",
-      thumbnail: "/placeholder.svg?height=120&width=200",
-    },
-    {
-      id: 7,
-      title: "Responsive Design Principles",
-      type: "Learning Path",
-      category: "Web Design",
-      status: "Urgent",
-      progress: 25,
-      items: 15,
-      itemType: "Path",
-      thumbnail: "/placeholder.svg?height=120&width=200",
-    },
-    {
-      id: 8,
-      title: "User Research Methods",
-      type: "Course",
-      category: "UX Research",
-      status: "Not Urgent",
-      progress: 60,
-      items: 18,
-      itemType: "Materials",
-      thumbnail: "/placeholder.svg?height=120&width=200",
-    },
-  ];
+  const session = await auth();
 
   const getTypeIcon = (type: string) => {
     switch (type) {
@@ -168,66 +58,12 @@ export default async function Dashboard() {
     <div className="min-h-screen">
       <main className="mx-auto max-w-7xl px-6 py-8">
         {/* Continue Learning Section */}
-        <section className="mb-12">
-          <h2 className="mb-6 text-2xl font-bold">Continue Learning</h2>
-          <div className="grid gap-6 xl:grid-cols-2">
-            {continuelearningCourses.map((course) => (
-              <Card key={course.id} className="w-full overflow-hidden">
-                <CardContent className="p-0">
-                  <div className="flex flex-col gap-4 p-4 xl:flex-row">
-                    <div className="relative h-full w-full xl:w-48">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src={
-                          "https://plus.unsplash.com/premium_photo-1682284352941-58dceb6cd601?q=80&w=1740&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-                        }
-                        alt={course.title}
-                        className="h-full w-full rounded-lg object-cover"
-                      />
-                      <Badge className="absolute left-2 top-2 bg-primary/50 text-xs text-primary text-white backdrop-blur-xl">
-                        {course.materials} Materials
-                      </Badge>
-                    </div>
-                    <div className="flex-1">
-                      <div className="mb-2 flex items-center gap-2">
-                        <div className="flex items-center gap-1 text-primary">
-                          <BookOpen className="h-4 w-4" />
-                          <span className="text-sm font-medium">
-                            {course.type}
-                          </span>
-                        </div>
-                      </div>
-                      <h3 className="mb-3 line-clamp-2 text-sm font-semibold">
-                        {course.title}
-                      </h3>
-                      <div className="flex gap-8">
-                        <div className="mb-3 flex-1">
-                          <div className="mb-1 flex items-center gap-2 text-sm">
-                            <span className="text-foreground/70">
-                              Progress:
-                            </span>
-                            <span className="font-medium">
-                              {course.progress}%
-                            </span>
-                          </div>
-                          <Progress value={course.progress} className="h-2" />
-                        </div>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="mb-2 w-fit"
-                        >
-                          Continue
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </section>
-
+        {session?.user && !!session.user.datePaid && (
+          <section className="mb-12">
+            <h2 className="mb-6 text-2xl font-bold">Continue Learning</h2>
+            <ContinuedLearning />
+          </section>
+        )}
         {/* All Materials Section */}
         <section className="w-full space-y-6">
           <div className="flex justify-between xl:items-center">
@@ -349,8 +185,6 @@ export default async function Dashboard() {
                         {material.status}
                       </Badge> */}
                     </div>
-
-
 
                     {/* {material.progress > 0 ? (
                       <div className="mb-3">

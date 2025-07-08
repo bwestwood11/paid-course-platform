@@ -1,6 +1,12 @@
 import { z } from "zod";
 
-import { createTRPCRouter, protectedProcedure, publicProcedure, systemAdminProcedure } from "@/server/api/trpc";
+import {
+  createTRPCRouter,
+  premiumProcedure,
+  protectedProcedure,
+  publicProcedure,
+  systemAdminProcedure,
+} from "@/server/api/trpc";
 import { db } from "@/server/db";
 import { getPagination } from "@/lib/utils";
 import { TRPCError } from "@trpc/server";
@@ -44,6 +50,127 @@ export const coursesRouter = createTRPCRouter({
         nextCursor,
       };
     }),
+
+  getInProgressCourses: premiumProcedure
+    .input(
+      z.object({
+        limit: z.number().default(10),
+      }),
+    )
+    .query(async ({ input, ctx }) => {
+      const { limit } = input;
+      const courses = await db.userCourseProgress.findMany({
+        take: limit,
+        where: {
+          userId: ctx.session.user.id,
+        },
+        include: {
+          course: {
+            select: {
+              title: true,
+              thumbnail: true,
+              description: true,
+              tags: true,
+            },
+          },
+        },
+      });
+
+      return courses;
+    }),
+
+  updateProgress: premiumProcedure
+    .input(
+      z.object({
+        id: z.string(),
+        chapterWatched: z.array(z.string()),
+      }),
+    )
+    .mutation(async ({ input }) => {
+      const existingProgress = await db.userCourseProgress.findUnique({
+        where: {
+          id: input.id,
+        },
+        select: {
+          completedChapters: true,
+          course: {
+            select: {
+              sections: {
+                select: {
+                  _count: {
+                    select: {
+                      chapters: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      });
+
+      if (!existingProgress) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Something Went Wrong",
+          cause: "Initializing the progress without starting course",
+        });
+      }
+
+      const totalChapters =
+        existingProgress.course?.sections.reduce(
+          (sum, section) => sum + section._count.chapters,
+          0,
+        ) ?? 0;
+
+      // Merge and dedupe chapters
+      const updatedChapters = Array.from(
+        new Set([
+          ...existingProgress.completedChapters,
+          ...input.chapterWatched,
+        ]),
+      );
+
+      const progressPercent =
+        totalChapters === 0
+          ? 0
+          : Math.round((updatedChapters.length / totalChapters) * 100);
+
+      await db.userCourseProgress.update({
+        where: { id: input.id },
+        data: {
+          completedChapters: updatedChapters,
+          percentComplete: progressPercent,
+        },
+      });
+    }),
+
+  startedCourse: premiumProcedure
+    .input(
+      z.object({
+        courseId: z.string(),
+      }),
+    )
+    .mutation(async ({ input, ctx }) => {
+      const existing = await db.userCourseProgress.findFirst({
+        where: {
+          userId: ctx.session.user.id,
+          courseId: input.courseId,
+        },
+      });
+
+      if (existing) return;
+
+      await db.userCourseProgress.create({
+        data: {
+          userId: ctx.session.user.id,
+          courseId: input.courseId,
+          completedChapters: [],
+          percentComplete: 0,
+        },
+      });
+    }),
+
   createCourse: systemAdminProcedure
     .input(
       z.object({
@@ -94,7 +221,7 @@ export const coursesRouter = createTRPCRouter({
       });
       return newCourse.id;
     }),
-  getCourseById: systemAdminProcedure
+  getCourseById: publicProcedure
     .input(
       z.object({
         courseId: z.string(),
@@ -114,6 +241,12 @@ export const coursesRouter = createTRPCRouter({
           _count: true,
           tags: true,
           starterCode: true,
+          trailer: {
+            select: {
+              muxPlaybackId: true,
+              thumbnail: true,
+            },
+          },
           thumbnail: {
             select: {
               url: true,
@@ -136,7 +269,8 @@ export const coursesRouter = createTRPCRouter({
 
       return { course, courseLength: _sum.videoLength };
     }),
-  getCourseContent: systemAdminProcedure
+
+  getCourseContent: premiumProcedure
     .input(
       z.object({
         courseId: z.string(),
@@ -158,9 +292,13 @@ export const coursesRouter = createTRPCRouter({
           muxPlaybackId: true,
         },
       });
+
       const sections = await db.section.findMany({
         where: {
           courseId,
+        },
+        orderBy: {
+          sequenceNumber: "asc",
         },
         select: {
           id: true,
@@ -175,6 +313,9 @@ export const coursesRouter = createTRPCRouter({
               videoLength: true,
               sequenceNumber: true,
               sectionId: true,
+            },
+            orderBy: {
+              sequenceNumber: "asc",
             },
           },
         },
