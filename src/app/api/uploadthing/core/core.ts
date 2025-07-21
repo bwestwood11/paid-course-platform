@@ -30,26 +30,26 @@ export const ourFileRouter = {
       // Whatever is returned here is accessible in onUploadComplete as `metadata`
       return { userId: user.user.id };
     })
-    .onUploadComplete(async ({ metadata, file }) => {
-      // This code RUNS ON YOUR SERVER after upload
-      try {
-          await db.orphanImage.create({
-            data: {
-              url: file.ufsUrl,
-              uploadThingId: file.key,
-              expiredAt: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7) // 7 days
-            }
-          })
-      } catch (error) {
-        console.error("Error saving file to database:", error);
-        throw new UploadThingError("Failed to save file to database");
-      }
-      console.log("Upload complete for userId:", metadata.userId);
+      .onUploadComplete(async ({ metadata, file }) => {
+        // This code RUNS ON YOUR SERVER after upload
+        try {
+            await db.orphanImage.create({
+              data: {
+                url: file.ufsUrl,
+                uploadThingId: file.key,
+                expiredAt: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7) // 7 days
+              }
+            })
+        } catch (error) {
+          console.error("Error saving file to database:", error);
+          throw new UploadThingError("Failed to save file to database");
+        }
+        console.log("Upload complete for userId:", metadata.userId);
 
-      console.log("file url", file.ufsUrl);
+        console.log("file url", file.ufsUrl);
 
-      // !!! Whatever is returned here is sent to the clientside `onClientUploadComplete` callback
-      return { uploadedBy: metadata.userId };
+        // !!! Whatever is returned here is sent to the clientside `onClientUploadComplete` callback
+        return { uploadedBy: metadata.userId };
     }),
 } satisfies FileRouter;
 

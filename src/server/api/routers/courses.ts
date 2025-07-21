@@ -13,6 +13,8 @@ import { TRPCError } from "@trpc/server";
 import { mux } from "@/lib/mux";
 import { utapi } from "@/lib/uploadthing";
 import { searchEngine } from "@/lib/search";
+import { Chapter, Course } from "@prisma/client";
+import { auth } from "@/server/auth";
 
 export const coursesRouter = createTRPCRouter({
   getSearchResult: systemAdminProcedure
@@ -65,6 +67,11 @@ export const coursesRouter = createTRPCRouter({
           userId: ctx.session.user.id,
         },
         include: {
+          completedChapters: {
+            select: {
+              id: true,
+            },
+          },
           course: {
             select: {
               title: true,
@@ -86,13 +93,17 @@ export const coursesRouter = createTRPCRouter({
         chapterWatched: z.array(z.string()),
       }),
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
       const existingProgress = await db.userCourseProgress.findUnique({
         where: {
-          id: input.id,
+          userId_courseId: {
+            userId: ctx.session.user.id,
+            courseId: input.id,
+          },
         },
         select: {
           completedChapters: true,
+          id: true,
           course: {
             select: {
               sections: {
@@ -126,7 +137,7 @@ export const coursesRouter = createTRPCRouter({
       // Merge and dedupe chapters
       const updatedChapters = Array.from(
         new Set([
-          ...existingProgress.completedChapters,
+          ...existingProgress.completedChapters.map((c) => c.id),
           ...input.chapterWatched,
         ]),
       );
@@ -136,10 +147,13 @@ export const coursesRouter = createTRPCRouter({
           ? 0
           : Math.round((updatedChapters.length / totalChapters) * 100);
 
+      console.log(updatedChapters);
       await db.userCourseProgress.update({
-        where: { id: input.id },
+        where: { id: existingProgress.id },
         data: {
-          completedChapters: updatedChapters,
+          completedChapters: {
+            connect: updatedChapters.map((id) => ({ id: id })),
+          },
           percentComplete: progressPercent,
         },
       });
@@ -159,16 +173,17 @@ export const coursesRouter = createTRPCRouter({
         },
       });
 
-      if (existing) return;
+      if (existing) return { success: true };
 
       await db.userCourseProgress.create({
         data: {
           userId: ctx.session.user.id,
           courseId: input.courseId,
-          completedChapters: [],
           percentComplete: 0,
         },
       });
+
+      return { success: true };
     }),
 
   createCourse: systemAdminProcedure
@@ -228,6 +243,7 @@ export const coursesRouter = createTRPCRouter({
       }),
     )
     .query(async ({ input }) => {
+      const session = await auth()
       const { courseId } = input;
       const course = await db.course.findUnique({
         where: {
@@ -267,7 +283,26 @@ export const coursesRouter = createTRPCRouter({
         },
       });
 
-      return { course, courseLength: _sum.videoLength };
+          let userCourseProgress = undefined;
+
+    if (session?.user.id) {
+      const progress = await db.userCourseProgress.findUnique({
+        where: {
+          userId_courseId: {
+            userId: session.user.id,
+            courseId: courseId
+          }
+        },
+        select: {
+         percentComplete: true,
+        },
+      });
+
+      userCourseProgress = progress ?? undefined;
+    }
+
+
+      return { course, courseLength: _sum.videoLength,  userCourseProgress};
     }),
 
   getCourseContent: premiumProcedure
@@ -276,7 +311,7 @@ export const coursesRouter = createTRPCRouter({
         courseId: z.string(),
       }),
     )
-    .query(async ({ input }) => {
+    .query(async ({ input, ctx }) => {
       const { courseId } = input;
       const courseTrailer = await db.trailer.findMany({
         where: {
@@ -313,6 +348,7 @@ export const coursesRouter = createTRPCRouter({
               videoLength: true,
               sequenceNumber: true,
               sectionId: true,
+              
             },
             orderBy: {
               sequenceNumber: "asc",
@@ -321,9 +357,24 @@ export const coursesRouter = createTRPCRouter({
         },
       });
 
+      const completed = await db.userCourseProgress.findUnique({
+        where:{
+          userId_courseId: {
+            userId: ctx.session.user.id,
+            courseId: input.courseId,
+          },
+        },
+        select:{
+          completedChapters:{
+            select:{id:true}
+          }
+        }
+      })
+
       return {
         courseTrailer: courseTrailer?.[0],
         sections,
+        completed: completed?.completedChapters.map(c => c.id) ?? []
       };
     }),
   updateCourseDetails: systemAdminProcedure
@@ -444,7 +495,7 @@ export const coursesRouter = createTRPCRouter({
                 update: {
                   title: chapter.title,
                   description: chapter.description,
-
+                  courseId: courseId,
                   videoLength: chapter.videoLength,
                   sequenceNumber: chapter.sequenceNumber,
                   thumbnail: "",
@@ -453,7 +504,7 @@ export const coursesRouter = createTRPCRouter({
                   id: chapter.id,
                   title: chapter.title,
                   description: chapter.description,
-
+                  courseId: courseId,
                   videoLength: chapter.videoLength,
                   sequenceNumber: chapter.sequenceNumber,
                   thumbnail: "",
@@ -471,7 +522,7 @@ export const coursesRouter = createTRPCRouter({
                 id: chapter.id,
                 title: chapter.title,
                 description: chapter.description,
-
+                courseId: courseId,
                 videoLength: chapter.videoLength,
                 sequenceNumber: chapter.sequenceNumber,
                 thumbnail: "",
@@ -525,7 +576,7 @@ export const coursesRouter = createTRPCRouter({
       });
       return upload.url;
     }),
-  getChapter: systemAdminProcedure
+  getChapter: premiumProcedure
     .input(
       z.object({
         chapterId: z.string(),

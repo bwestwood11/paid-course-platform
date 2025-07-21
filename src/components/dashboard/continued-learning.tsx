@@ -3,18 +3,21 @@ import { Card, CardContent } from "../ui/card";
 import { Badge } from "../ui/badge";
 import { BookOpen } from "lucide-react";
 import { Progress } from "../ui/progress";
-import { Button } from "../ui/button";
+import { Button, buttonVariants } from "../ui/button";
 import { api } from "@/trpc/server";
+import Link from "next/link";
 
 const ContinuedLearning = async () => {
   const courses = await api.courses.getInProgressCourses({ limit: 2 });
   if (!courses) return null;
 
-
-const getTotalCount = (watchedCount: number, percentCompleted: number): number => {
-  if (percentCompleted === 0) return 0; 
-  return Math.round((watchedCount * 100) / percentCompleted);
-};
+  const getTotalCount = (
+    watchedCount: number,
+    percentCompleted: number,
+  ): number => {
+    if (percentCompleted === 0) return 0;
+    return Math.round((watchedCount * 100) / percentCompleted);
+  };
 
   return (
     <div className="grid gap-6 xl:grid-cols-2">
@@ -30,14 +33,20 @@ const getTotalCount = (watchedCount: number, percentCompleted: number): number =
                   className="h-full w-full rounded-lg object-cover"
                 />
                 <Badge className="absolute left-2 top-2 bg-primary/50 text-xs text-primary text-white backdrop-blur-xl">
-                  {getTotalCount(course.completedChapters.length, course.percentComplete)} Chapters
+                  {getTotalCount(
+                    course.completedChapters.length,
+                    course.percentComplete,
+                  )}{" "}
+                  Chapters
                 </Badge>
               </div>
               <div className="flex-1">
                 <div className="mb-2 flex items-center gap-2">
                   <div className="flex items-center gap-1 text-primary">
                     <BookOpen className="h-4 w-4" />
-                    <span className="text-sm font-medium">{course.course.tags[0]}</span>
+                    <span className="text-sm font-medium">
+                      {course.course.tags[0]}
+                    </span>
                   </div>
                 </div>
                 <h3 className="mb-3 line-clamp-2 text-sm font-semibold">
@@ -47,13 +56,19 @@ const getTotalCount = (watchedCount: number, percentCompleted: number): number =
                   <div className="mb-3 flex-1">
                     <div className="mb-1 flex items-center gap-2 text-sm">
                       <span className="text-foreground/70">Progress:</span>
-                      <span className="font-medium">{course.percentComplete}%</span>
+                      <span className="font-medium">
+                        {course.percentComplete}%
+                      </span>
                     </div>
                     <Progress value={course.percentComplete} className="h-2" />
                   </div>
-                  <Button variant="outline" size="sm" className="mb-2 w-fit">
+                  <Link
+                  
+                    href={`/courses/${course.courseId}/continue`}
+                    className={buttonVariants({className:"mb-2 w-fit"})}
+                  >
                     Continue
-                  </Button>
+                  </Link>
                 </div>
               </div>
             </div>

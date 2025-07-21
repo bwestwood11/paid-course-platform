@@ -92,21 +92,22 @@ model Course {
     sections           Section[]
     challenges         Challenge[]
     quizzes            Quiz[]
+    chapters           Chapter[]
     watchlists         Watchlist[]
     thumbnail          Thumbnail[]
     userCourseProgress UserCourseProgress[]
 }
 
 model UserCourseProgress {
-    id                String   @id @default(cuid())
-    user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+    id                String    @id @default(cuid())
+    user              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
     userId            String
-    course            Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+    course            Course    @relation(fields: [courseId], references: [id], onDelete: Cascade)
     courseId          String
-    completedChapters String[] // store chapter IDs or numbers
-    percentComplete   Int      @default(0)
-    lastAccessed      DateTime @default(now())
-    updatedAt         DateTime @updatedAt
+    completedChapters Chapter[] // store chapter IDs or numbers
+    percentComplete   Int       @default(0)
+    lastAccessed      DateTime  @default(now())
+    updatedAt         DateTime  @updatedAt
 
     @@unique([userId, courseId])
     @@index([userId])
@@ -177,24 +178,27 @@ model Section {
 }
 
 model Chapter {
-    id             String         @id @default(cuid())
+    id             String               @id @default(cuid())
     title          String
     description    String
     muxStatus      TrailerStatus?
-    muxAssetId     String?        @unique
-    muxUploadId    String?        @unique
-    muxPlaybackId  String?        @unique
-    muxTrackId     String?        @unique
+    muxAssetId     String?              @unique
+    muxUploadId    String?              @unique
+    muxPlaybackId  String?              @unique
+    muxTrackId     String?              @unique
     muxTrackStatus String?
     thumbnail      String?
-    uploadThingId  String?        @unique
+    uploadThingId  String?              @unique
     previewUrl     String?
     sequenceNumber Int
     videoLength    Int
-    createdAt      DateTime       @default(now())
-    updatedAt      DateTime       @updatedAt
-    section        Section        @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+    createdAt      DateTime             @default(now())
+    updatedAt      DateTime             @updatedAt
+    section        Section              @relation(fields: [sectionId], references: [id], onDelete: Cascade)
     sectionId      String
+    watchedBy      UserCourseProgress[]
+    courseId       String
+    course         Course               @relation(fields: [courseId], references: [id], onDelete: Cascade)
 
     @@index([sequenceNumber])
 }

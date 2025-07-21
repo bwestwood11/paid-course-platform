@@ -18,42 +18,12 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { api } from "@/trpc/server";
 import ContinuedLearning from "./continued-learning";
 import { auth } from "@/server/auth";
+import Link from "next/link";
 
 export default async function Dashboard() {
   const session = await auth();
 
-  const getTypeIcon = (type: string) => {
-    switch (type) {
-      case "Quiz":
-        return <Award className="h-4 w-4" />;
-      case "Course":
-        return <BookOpen className="h-4 w-4" />;
-      case "Learning Path":
-        return <Users className="h-4 w-4" />;
-      case "Page":
-        return <Play className="h-4 w-4" />;
-      default:
-        return <BookOpen className="h-4 w-4" />;
-    }
-  };
-
-  const getTypeColor = (type: string) => {
-    switch (type) {
-      case "Quiz":
-        return "bg-yellow-500";
-      case "Course":
-        return "bg-blue-500";
-      case "Learning Path":
-        return "bg-purple-500";
-      case "Page":
-        return "bg-orange-500";
-      default:
-        return "bg-gray-500";
-    }
-  };
-
   const courses = await api.courses.getAllAdminCourses({});
-
   return (
     <div className="min-h-screen">
       <main className="mx-auto max-w-7xl px-6 py-8">
@@ -133,91 +103,42 @@ export default async function Dashboard() {
                 key={course.id}
                 className="overflow-hidden transition-shadow hover:shadow-lg"
               >
-                <CardContent className="flex h-full flex-col p-0">
-                  <div className="relative">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={
-                        course.thumbnail[0]?.url ??
-                        "https://via.placeholder.com/200x120"
-                      }
-                      alt={course.thumbnail[0]?.name}
-                      className="h-32 w-full object-cover"
-                    />
-                    <Badge
-                      className={`absolute left-2 top-2 text-xs text-white`}
-                    >
-                      {course.tags}
-                    </Badge>
-                  </div>
-                  <div className="flex flex-1 flex-col p-4">
-                    <div className="mb-2 flex items-center gap-2">
-                      {/* <div
-                        className={`rounded p-1 ${getTypeColor(material.type)} text-white`}
-                      >
-                        {getTypeIcon(material.type)}
-                      </div> */}
-                      {/* <span className="text-sm font-medium">
-                        {material.type}
-                      </span> */}
-
-                      <Badge variant="outline" className="text-xs">
-                        Certified
-                      </Badge>
-                    </div>
-
-                    <h3 className="mb-2 line-clamp-2 text-sm font-semibold">
-                      {course.title}
-                    </h3>
-
-                    <div className="mb-3 flex items-center gap-2">
-                      <Badge variant="secondary" className="text-xs">
-                        {course.tags[0]}
-                      </Badge>
-                      {/* <Badge
-                        variant={
-                          material.status === "Urgent"
-                            ? "destructive"
-                            : "secondary"
+                <CardContent className="flex h-full flex-col p-0 cursor-pointer">
+                  <Link href={`/courses/${course.id}/get-started`} className="block">
+                    <div className="relative">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={
+                          course.thumbnail[0]?.url ??
+                          "https://via.placeholder.com/200x120"
                         }
-                        className="text-xs"
+                        alt={course.thumbnail[0]?.name}
+                        className="h-32 w-full object-cover"
+                      />
+                      <Badge
+                        className={`absolute left-2 top-2 text-xs text-white`}
                       >
-                        {material.status}
-                      </Badge> */}
+                        {course.tags}
+                      </Badge>
                     </div>
-
-                    {/* {material.progress > 0 ? (
-                      <div className="mb-3">
-                        <div className="mb-1 flex items-center justify-between text-sm">
-                          <span className="text-gray-600">Progress:</span>
-                          <span className="font-medium">
-                            {material.progress}%
-                          </span>
-                        </div>
-                        <Progress value={material.progress} className="h-2" />
+                    <div className="flex flex-1 flex-col p-4">
+                      <div className="mb-2 flex items-center gap-2">
+                        <Badge variant="outline" className="text-xs">
+                          Certified
+                        </Badge>
                       </div>
-                    ) : (
-                      <div className="mb-3">
-                        <span className="text-sm text-gray-500">
-                          Not Started
-                        </span>
-                      </div>
-                    )}
 
-                    <div className="flex h-full flex-1 items-end">
-                      <Button
-                        size="sm"
-                        className="w-full"
-                        variant={material.progress > 0 ? "default" : "outline"}
-                      >
-                        {material.progress > 0
-                          ? "Continue"
-                          : material.progress === 0 && material.type === "Quiz"
-                            ? "View"
-                            : "Start"}
-                      </Button>
-                    </div> */}
-                  </div>
+                      <h3 className="mb-2 line-clamp-2 text-sm font-semibold">
+                        {course.title}
+                      </h3>
+
+                      <div className="mb-3 flex items-center gap-2">
+                        <Badge variant="secondary" className="text-xs">
+                          {course.tags[0]}
+                        </Badge>
+                      </div>
+                    </div>
+                  </Link>
                 </CardContent>
               </Card>
             ))}

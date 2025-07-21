@@ -32,6 +32,13 @@ export const paymentRouter = createTRPCRouter({
         },
       });
 
+      await stripe.subscriptions.create({
+        customer: newCustomer.id,
+        items: [{ price: process.env.STRIPE_COURSE_PRICE_ID }],
+        
+      })
+
+
       await db.user.update({
         where: { id: user.id },
         data: { stripeCustomerId: newCustomer.id },

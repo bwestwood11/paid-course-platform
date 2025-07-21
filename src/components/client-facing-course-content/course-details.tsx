@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Play, Check, Star } from "lucide-react";
 import { GetCourseById } from "@/types/courses";
 import CourseClientTrailer from "./course-trailer";
+import ChapterVideo from "./chapter-video";
 
 export function CourseDetails({
   course,
@@ -34,7 +35,9 @@ export function CourseDetails({
             thumbnail={course.course?.trailer?.thumbnail ?? course.course?.thumbnail?.[0]?.url ?? ""}
           />
         )}
-        
+        {chapterId && (
+          <ChapterVideo chapterId={chapterId} courseId={course.course?.id ?? ""} />
+        )}
       </Card>
 
       {/* Tabs */}
